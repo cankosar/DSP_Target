@@ -76,26 +76,24 @@ void c_sai::start(void){
 
 void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai)
 {
+	tx_status=0;
 	printf("Tx\n");
-//	tx_status=0;
 }
 
 
 void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai){
-//	tx_status=1;
-//		printf("TXH\n");
+	tx_status=1;
 }
 
 void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai){
-
-	//	HAL_GPIO_TogglePin(GPIOB,LD2_Pin);
+	rx_status=0;
 	printf("Rx\n");
-//	rx_status=0;
+
 
 }
 
 void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai){
-//	rx_status=1;
+	rx_status=1;
 }
 
 #ifdef __cplusplus

@@ -11,11 +11,15 @@
 
 
 #include "stm32h7xx_hal.h"
-
-#define buf_size 240
-uint32_t __attribute__((section (".dmadata")))  rx_buf[buf_size*4];
-uint32_t __attribute__((section (".dmadata")))  tx_buf[buf_size*4];
+#include "hwconfig.hpp"
 
 
+int32_t __attribute__((section (".dmadata")))  rx_buf[buf_size*4];
+int32_t __attribute__((section (".dmadata")))  tx_buf[buf_size*4];
+
+//bool dsp_r,dsp_w; //Active half of DSP array
+
+bool tx_status;
+bool rx_status;
 
 #endif /* INC_SER_COMMON_HPP_ */

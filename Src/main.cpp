@@ -11,7 +11,7 @@ extern "C" {
 #include "../hw/inc/cs4272.hpp"
 #include "../hw/inc/sai.hpp"
 #include "../com/inc/com_ctrl.hpp"
-#include "serialize.hpp"
+#include "../dsp/inc/serializer.hpp"
 
 //Instantiate configures
 sysconfig conf;
@@ -24,6 +24,8 @@ com_ctrl com;
 
 //Instantiate SAI
 c_sai sai;
+
+c_ser ser;
 
 //Main routine
 int main(void){
@@ -46,9 +48,17 @@ int main(void){
 	//Start SAI
 	sai.start();
 
-	//HW test: move to serializer class
-	while(1){
-	}
+	//Initialize serializer
+	ser.init();
+
+	//Start serializer
+	ser.start();
+
+
+	printf("Error. Main loop broken\n");
+
+
+
 
 	return 0;
 }
