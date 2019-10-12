@@ -62,9 +62,10 @@ void c_sai::start(void){
 
 	//Start DMA Streams
 	printf("Initializing SAI DMA Receive stream...\n");
+//	printf("Initializing SAI DMA Receive stream...\n");
 	HAL_SAI_Receive_DMA(&hsai_BlockA1, (uint8_t*)&rx_buf, 4*buf_size);
 	printf("SAI DMA Receive stream initialized!\n");
-	printf("Initializing SAI DMA transmit stream...\n");
+//	printf("Initializing SAI DMA transmit stream...\n");
 	HAL_SAI_Transmit_DMA(&hsai_BlockB1, (uint8_t*)&tx_buf, 4*buf_size);
 	printf("SAI DMA transmit stream initialized!\n");
 
@@ -77,7 +78,7 @@ void c_sai::start(void){
 void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai)
 {
 	tx_status=0;
-	printf("Tx\n");
+//	printf("Tx\n");
 }
 
 
@@ -87,7 +88,7 @@ void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai){
 
 void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai){
 	rx_status=0;
-	printf("Rx\n");
+//	printf("Rx\n");
 
 
 }

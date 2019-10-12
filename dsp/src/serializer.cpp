@@ -26,10 +26,16 @@ void c_ser::init(void){
 	rx_status=0;
 
 
+	//Initialize DSP
+	dsp.init();
+
+	//Update DSP - should be obsolete
+	dsp.update();
 
 }
 
 void c_ser::start(void){
+
 
 
 	bool old_pos=1;
@@ -39,16 +45,20 @@ void c_ser::start(void){
 
 		if((tx_status && rx_status)&&old_pos){ //When pointer is on the second half of the buffer
 
+//			printf("1\n");
 			for(i=0;i<buf_size*2;i+=2){
-				tx_buf[i]=dsp.process(rx_buf[i]); //(mono right)
+				tx_buf[i]=dsp.process(&rx_buf[i]); //(mono right)
+//				dsp.test(i);
 
 			}
 			old_pos=0;
 
 		}else if(!(tx_status || rx_status)&&!old_pos){//When pointer is on the first half of the buffer
 
+//			printf("2\n");
 			for(i=buf_size*2;i<buf_size*4;i+=2){
-				tx_buf[i]=dsp.process(rx_buf[i]); //(mono right)
+				tx_buf[i]=dsp.process(&rx_buf[i]); //(mono right)
+//				dsp.test(i);
 
 			}
 			old_pos=1;
