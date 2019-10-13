@@ -36,6 +36,9 @@ int main(void){
 	//Initialize communication
 	com.init();
 
+	//Start communication
+	com.start();
+
 	//Initialize codec
 	codec.init();
 

@@ -11,5 +11,4 @@
 
 #define buf_size 240
 
-
 #endif /* INC_HWCONFIG_HPP_ */

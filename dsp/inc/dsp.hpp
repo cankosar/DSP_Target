@@ -49,7 +49,7 @@ class c_dsp{
 		static const unsigned short c_compressor_bank=11;
 
 
-	private:
+
 		const static unsigned short int n_EQ=3;
 		c_biquad biquad[n_EQ];
 		c_delay delay;
@@ -60,6 +60,8 @@ class c_dsp{
 		c_tremolo tremolo;
 		c_rotary rotary;
 		c_compressor compressor;
+
+//	private:
 };
 
 

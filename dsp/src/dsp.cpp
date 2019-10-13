@@ -179,7 +179,7 @@ void c_dsp::update(void){
 	//Dummy hash
 //	unsigned banks=0b111111111101;			//Full performance test
 //	unsigned banks=0b111101011101;			//wo delay and od
-	unsigned banks=0b000000000001;			//Pass through
+	unsigned banks=0b000000100001;			//Pass through
 
 	//General DSP bank
 	if(banks&(1<<c_dsp_bank)){

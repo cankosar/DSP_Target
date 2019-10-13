@@ -8,12 +8,13 @@
 #ifndef COM_CTRL_HPP_
 #define COM_CTRL_HPP_
 
-//#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 class com_ctrl{
 
 	public:
 		void init(void);
+		void start(void);
 
 	private:
 

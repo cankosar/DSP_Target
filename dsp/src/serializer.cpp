@@ -13,8 +13,9 @@ extern "C" {
 #include "../inc/serializer.hpp"
 #include "stm32h7xx_hal.h"
 #include "../../hw/inc/hwconfig.hpp"
+#include "../inc/dsp_common.hpp"
 
-
+extern c_dsp dsp;
 extern bool tx_status;
 extern bool rx_status;
 extern int32_t rx_buf[buf_size*4];

@@ -11,9 +11,17 @@
 extern "C" {
 #endif
 
-
+#include "string.h"
 #include "../inc/com_ctrl.hpp"
 #include "../../hw/inc/common_handlers.hpp"
+#include "../inc/com_common.hpp"
+#include "./../dsp/inc/dsp.hpp"
+//#include "../../dsp/inc/dsp_common.hpp"
+
+extern int32_t ctrl_tx[l_ctrl*4];
+extern int32_t ctrl_rx[l_ctrl*4];
+
+extern c_dsp dsp;
 
 void com_ctrl::init(void){
 
@@ -21,7 +29,15 @@ void com_ctrl::init(void){
 
 }
 
+void com_ctrl::start(void){
+
+	//Start DMA stream
+	HAL_SPI_TransmitReceive_DMA(&hspi3,(uint8_t*)ctrl_tx, (uint8_t*) ctrl_rx, 4*l_ctrl);
+}
+
 void com_ctrl::MX_SPI3_Init(void){
+
+	printf("Init SPI3\n");
 
   /* SPI3 parameter configuration*/
   hspi3.Instance = SPI3;
@@ -49,7 +65,37 @@ void com_ctrl::MX_SPI3_Init(void){
   if (HAL_SPI_Init(&hspi3) != HAL_OK)
   {
 //    _Error_Handler(__FILE__, __LINE__);
+//    printf("Error SPI3\n");
   }
+
+}
+
+void HAL_SPI_TxRxCpltCallback (SPI_HandleTypeDef * hspi){
+
+//	rx_com=ctrl_rx;
+
+	memcpy(rx_com,ctrl_rx,4*l_ctrl);
+
+	printf("Bank: %d\t"
+			"Type:%d\t"
+			"Id:%d\t"
+			"Value:%lu\n",rx_com[0].u8[0],
+			rx_com[0].u8[1],
+			rx_com[0].u8[2],
+			rx_com[1].u32);
+
+
+	if(rx_com[0].u8[0]==4){
+		if(rx_com[0].u8[1]==0){
+			if(rx_com[0].u8[2]==2){
+				printf("Setting delay to %ld\n",(int32_t)rx_com[1].f32);
+				dsp.delay.set_time(&rx_com[1].f32);
+			}
+		}
+	}
+
+
+
 
 }
 

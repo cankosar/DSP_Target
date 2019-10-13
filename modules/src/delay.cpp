@@ -7,6 +7,7 @@
 //#include "stdio.h"
 #include "string.h"
 
+#include "stm32h7xx_hal.h"
 #include "../../dsp/inc/constants.hpp"
 #include "../inc/delay.hpp"
 
@@ -51,6 +52,12 @@ void c_delay::set_time(float *time){
 
 //	delay_time=*time*0.001;		//Should be unnecessary
 	n_distance=(unsigned long)(*time*FSms);
+//	printf("Setting distance to %lu\n",n_distance);
+
+	//Clean buffer
+	reset_buffer();
+
+
 
 }
 
