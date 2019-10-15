@@ -30,7 +30,9 @@ void c_delay::init(void){
 void c_delay::reset_buffer(void){
 	//Fill the delay buffer with zeros
 
-	memset(dbuf, 0, delay_len*sizeof(*dbuf));
+//	memset(dbuf, 0, delay_len*sizeof(*dbuf));
+	memset(dbuf, 0, n_distance*sizeof(*dbuf));
+
 
 	//Delay array pointer
 	dptr=0;
@@ -50,7 +52,7 @@ void c_delay::set_dry(float *dry){
 
 void c_delay::set_time(float *time){
 
-//	delay_time=*time*0.001;		//Should be unnecessary
+	delay_time=*time*0.001;		//Should be unnecessary
 	n_distance=(unsigned long)(*time*FSms);
 //	printf("Setting distance to %lu\n",n_distance);
 
@@ -81,27 +83,19 @@ void c_delay::stop(void){
 }
 
 float c_delay::process(float x){
-
 	float y;
 
 	//Calculate output
 	y=dbuf[dptr]*G_w+x*G_d;
 
-	//Calculate update pointer
-	long int wptr;	//Write pointer
-	wptr=dptr-n_distance;
-	if(wptr<0){
-		wptr+=delay_len;
-	}
-
 	//Update buffer
-	dbuf[wptr]=x+dbuf[dptr]*G_fb;
+	dbuf[dptr]=x+dbuf[dptr]*G_fb;
 
 	//Increment pointer
 	dptr++;
 
-	if(dptr>=delay_len){
-		dptr-=delay_len;
+	if(dptr>=n_distance){
+		dptr=0;
 	}
 
 

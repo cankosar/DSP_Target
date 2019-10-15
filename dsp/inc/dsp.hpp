@@ -21,6 +21,19 @@
 #include "../../modules/inc/rotary.hpp"
 #include "../../modules/inc/compressor.hpp"
 
+//The bank positions
+static const unsigned short c_dsp_bank=0;
+static const unsigned short c_tuner_bank=1;
+static const unsigned short c_EQ_bank=2;
+static const unsigned short c_delay_bank=5;
+static const unsigned short c_chorus_bank=6;
+static const unsigned short c_overdrive_bank=7;
+static const unsigned short c_reverb_bank=8;
+static const unsigned short c_tremolo_bank=9;
+static const unsigned short c_rotary_bank=10;
+static const unsigned short c_compressor_bank=11;
+
+
 class c_dsp{
 	public:
 		//Methods
@@ -28,25 +41,13 @@ class c_dsp{
 		int32_t process(int32_t* x);
 		void start(void);
 		void stop(void);
-		void update(void);
-		void test(uint32_t id);
+		void update_bank_states(uint32_t banks);
 
 		uint32_t last_id=0;
 
 		//Variables
 		bool status;
 
-		//The bank positions
-		static const unsigned short c_dsp_bank=0;
-		static const unsigned short c_tuner_bank=1;
-		static const unsigned short c_EQ_bank=2;
-		static const unsigned short c_delay_bank=5;
-		static const unsigned short c_chorus_bank=6;
-		static const unsigned short c_overdrive_bank=7;
-		static const unsigned short c_reverb_bank=8;
-		static const unsigned short c_tremolo_bank=9;
-		static const unsigned short c_rotary_bank=10;
-		static const unsigned short c_compressor_bank=11;
 
 
 

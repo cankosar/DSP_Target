@@ -22,22 +22,23 @@ extern int32_t ctrl_tx[l_ctrl*4];
 extern int32_t ctrl_rx[l_ctrl*4];
 
 extern c_dsp dsp;
+extern c_com_ctrl com;
 
-void com_ctrl::init(void){
+void c_com_ctrl::init(void){
 
 	MX_SPI3_Init();
 
 }
 
-void com_ctrl::start(void){
+void c_com_ctrl::start(void){
 
 	//Start DMA stream
 	HAL_SPI_TransmitReceive_DMA(&hspi3,(uint8_t*)ctrl_tx, (uint8_t*) ctrl_rx, 4*l_ctrl);
 }
 
-void com_ctrl::MX_SPI3_Init(void){
+void c_com_ctrl::MX_SPI3_Init(void){
 
-	printf("Init SPI3\n");
+//	printf("Init SPI3\n");
 
   /* SPI3 parameter configuration*/
   hspi3.Instance = SPI3;
@@ -70,25 +71,163 @@ void com_ctrl::MX_SPI3_Init(void){
 
 }
 
-void HAL_SPI_TxRxCpltCallback (SPI_HandleTypeDef * hspi){
-
-//	rx_com=ctrl_rx;
-
+void c_com_ctrl::apply_update(void)
+{
+	//Copy incoming message to union
 	memcpy(rx_com,ctrl_rx,4*l_ctrl);
 
-	printf("Bank: %d\t"
-			"Type:%d\t"
-			"Id:%d\t"
-			"Value:%lu\n",rx_com[0].u8[0],
-			rx_com[0].u8[1],
-			rx_com[0].u8[2],
-			rx_com[1].u32);
+//	printf("Bank: %d\t Type:%d\t Id:%d\t Value:%lu\n",rx_com[0].u8[0],rx_com[0].u8[1],	rx_com[0].u8[2],rx_com[1].u32);
+
+	//Update bank states
+	if(rx_com[0].u8[1]==1 && rx_com[0].u8[2]==0){
+		dsp.update_bank_states(rx_com[1].u32);
+	}
+
+	switch(rx_com[0].u8[0]){
+
+		case c_delay_bank:
+			//Delay
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.delay.set_dry(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.delay.set_feedback(&rx_com[1].f32);
+						break;
+					case 2:
+						dsp.delay.set_time(&rx_com[1].f32);
+						break;
+				}
+
+			}
+			break;
+
+		case c_chorus_bank:
+			//chorus
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.chorus.set_wet(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.chorus.set_depth(&rx_com[1].f32);
+						break;
+					case 2:
+						dsp.chorus.set_rate(&rx_com[1].f32);
+						break;
+				}
+
+			}
+
+			break;
+		case c_overdrive_bank:
+			//Overdrive
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.overdrive.set_gain(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.overdrive.set_HP_freq(&rx_com[1].f32);
+						break;
+					case 2:
+						dsp.overdrive.set_HP_freq(&rx_com[1].f32);
+						break;
+				}
+
+			}
+
+			break;
+
+		case c_reverb_bank:
+			//Reverb
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.reverb.set_wet(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.reverb.set_size(&rx_com[1].f32);
+						break;
+					case 2:
+						dsp.reverb.set_damp(&rx_com[1].f32);
+						break;
+				}
+
+			}
+
+			break;
+
+		case c_tremolo_bank:
+			//Tremolo
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.tremolo.set_depth(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.tremolo.set_freq(&rx_com[1].f32);
+						break;
+					case 2:
+						dsp.tremolo.set_type(&rx_com[1].f32);
+						break;
+				}
+
+			}
+
+			break;
+
+		case c_rotary_bank:
+			//Rotary
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.rotary.set_depth(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.rotary.set_freq(&rx_com[1].f32);
+						break;
+					case 2:
+						break;
+				}
+
+			}
+
+			break;
+
+		case c_compressor_bank:
+			//Compressor
+			if(rx_com[0].u8[1]==0){
+				//Encoders
+				switch(rx_com[0].u8[2]){	//Switch on encoders
+					case 0:
+						dsp.compressor.set_threshold(&rx_com[1].f32);
+						break;
+					case 1:
+						dsp.compressor.set_ratio(&rx_com[1].f32);
+						break;
+					case 2:
+						dsp.compressor.set_attack(&rx_com[1].f32);
+						break;
+				}
+
+			}
+
+			break;
+
+	}
 
 
 	if(rx_com[0].u8[0]==4){
 		if(rx_com[0].u8[1]==0){
 			if(rx_com[0].u8[2]==2){
-				printf("Setting delay to %ld\n",(int32_t)rx_com[1].f32);
 				dsp.delay.set_time(&rx_com[1].f32);
 			}
 		}
@@ -96,7 +235,12 @@ void HAL_SPI_TxRxCpltCallback (SPI_HandleTypeDef * hspi){
 
 
 
+}
 
+void HAL_SPI_TxRxCpltCallback (SPI_HandleTypeDef * hspi){
+
+	//Call main routine applying the updates
+	com.apply_update();
 }
 
 

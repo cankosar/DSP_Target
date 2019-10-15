@@ -31,7 +31,7 @@ void c_ser::init(void){
 	dsp.init();
 
 	//Update DSP - should be obsolete
-	dsp.update();
+	dsp.update_bank_states(0);
 
 }
 

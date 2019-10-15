@@ -55,15 +55,6 @@ void c_dsp::init(void){
 
 }
 
-void c_dsp::test(uint32_t id){
-
-	if((id-last_id)!=2){
-//		printf("Id: %d, Last:%d\n",id,last_id);
-	}
-
-	last_id=id;
-}
-
 int32_t c_dsp::process(int32_t *x){
 
 
@@ -173,13 +164,15 @@ void c_dsp::start(void){
 }
 
 
-void c_dsp::update(void){
+void c_dsp::update_bank_states(uint32_t banks){
 
 	/*Here comes the update hash */
 	//Dummy hash
 //	unsigned banks=0b111111111101;			//Full performance test
 //	unsigned banks=0b111101011101;			//wo delay and od
-	unsigned banks=0b000000100001;			//Pass through
+//	unsigned banks=0b000000100001;			//Pass through
+
+//	printf("Banks in:%lu\n",banks);
 
 	//General DSP bank
 	if(banks&(1<<c_dsp_bank)){

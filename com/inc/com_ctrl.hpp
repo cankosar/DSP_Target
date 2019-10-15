@@ -10,18 +10,18 @@
 
 #include "stm32h7xx_hal.h"
 
-class com_ctrl{
+class c_com_ctrl{
 
 	public:
 		void init(void);
 		void start(void);
+		void apply_update(void);
 
 	private:
 
 		void MX_SPI3_Init(void);
-
-
 };
+
 
 
 

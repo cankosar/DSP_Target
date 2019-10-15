@@ -13,6 +13,8 @@ extern "C" {
 #include "../com/inc/com_ctrl.hpp"
 #include "../dsp/inc/serializer.hpp"
 
+
+
 //Instantiate configures
 sysconfig conf;
 
@@ -20,11 +22,15 @@ sysconfig conf;
 cs4272 codec;
 
 //Instantiate communication stack
-com_ctrl com;
+
 
 //Instantiate SAI
 c_sai sai;
 
+//Instantiate communication stack
+extern c_com_ctrl com;
+
+//Instantiate serializer
 c_ser ser;
 
 //Main routine

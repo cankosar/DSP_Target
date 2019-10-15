@@ -24,4 +24,7 @@ union ctrltypes{
 union ctrltypes rx_com[l_ctrl];
 union ctrltypes tx_com[l_ctrl];
 
+//Instance
+c_com_ctrl com;
+
 #endif /* INC_COM_COMMON_HPP_ */
