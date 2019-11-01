@@ -36,6 +36,60 @@ void c_com_ctrl::start(void){
 	HAL_SPI_TransmitReceive_DMA(&hspi3,(uint8_t*)ctrl_tx, (uint8_t*) ctrl_rx, 4*l_ctrl);
 }
 
+void c_com_ctrl::setup_uC_com(void){
+
+
+
+	//Wait until uC is ready and set up the ready flag
+	while(1){
+
+			//Copy incoming message to union
+			memcpy(rx_com,ctrl_rx,4*l_ctrl);
+
+			if(rx_com[n_cmd].u8[i_bank]==i_com_bank && rx_com[n_val].u32 == uC_ready){
+				//Set the ready flag high
+
+//				LOCK=1;
+				tx_com[n_cmd].u8[i_bank]=i_com_bank;
+				tx_com[n_cmd].u8[i_type]=0;
+				tx_com[n_cmd].u8[i_id]=0;
+				tx_com[n_cmd].u8[i_reserved]=0;
+
+				tx_com[n_val].u32=DSP_ready;
+
+				//Copy outgoing message to SPI buffer
+				memcpy(ctrl_tx,tx_com,4*l_ctrl);
+
+				HAL_Delay(2*t_com_wait);
+				LOCK=0;
+				printf("Communication to uC is up!\n");
+				break;
+			}else{
+				HAL_Delay(t_com_wait);
+				printf("Waiting for uC!\n");
+			}
+		}
+
+}
+
+void c_com_ctrl::provide_tuner_freq(float *freq){
+
+	if(!LOCK){
+		//Set the tuner frequency
+		tx_com[n_cmd].u8[i_bank]=bankid_tuner;
+		tx_com[n_cmd].u8[i_type]=0;
+		tx_com[n_cmd].u8[i_id]=i_tuner_freq;
+		tx_com[n_cmd].u8[i_reserved]=0;
+
+		tx_com[n_val].f32=*freq;
+
+		//Copy outgoing message to SPI buffer
+		memcpy(ctrl_tx,tx_com,4*l_ctrl);
+	}
+}
+
+
+
 void c_com_ctrl::MX_SPI3_Init(void){
 
 //	printf("Init SPI3\n");
@@ -78,64 +132,157 @@ void c_com_ctrl::apply_update(void)
 
 //	printf("Bank: %d\t Type:%d\t Id:%d\t Value:%lu\n",rx_com[0].u8[0],rx_com[0].u8[1],	rx_com[0].u8[2],rx_com[1].u32);
 
+//	printf("b\n");
 	//Update bank states
-	if(rx_com[0].u8[1]==1 && rx_com[0].u8[2]==0){
-		dsp.update_bank_states(rx_com[1].u32);
+	if(rx_com[n_cmd].u8[i_type]==1 && rx_com[n_cmd].u8[i_id]==0){
+		dsp.update_bank_states(rx_com[n_val].u32);
 	}
 
 	switch(rx_com[0].u8[0]){
 
-		case c_delay_bank:
+
+		case bankid_lowshelf:
+			//Low shelf
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.lowshelf.set_gain(rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.lowshelf.set_freq(rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.lowshelf.set_quality(rx_com[n_val].f32);
+						break;
+				}
+			}
+			break;
+
+		case bankid_lowmid:
+			//Low mid
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.lowmid.set_gain(rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.lowmid.set_freq(rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.lowmid.set_quality(rx_com[n_val].f32);
+						break;
+				}
+			}
+			break;
+
+		case bankid_mid:
+			//Mid
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.mid.set_gain(rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.mid.set_freq(rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.mid.set_quality(rx_com[n_val].f32);
+						break;
+				}
+			}
+			break;
+
+		case bankid_highmid:
+			//High mid
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.highmid.set_gain(rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.highmid.set_freq(rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.highmid.set_quality(rx_com[n_val].f32);
+						break;
+				}
+			}
+			break;
+
+		case bankid_highshelf:
+			//High shelf
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.highshelf.set_gain(rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.highshelf.set_freq(rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.highshelf.set_quality(rx_com[n_val].f32);
+						break;
+				}
+			}
+			break;
+
+		case bankid_delay:
 			//Delay
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.delay.set_dry(&rx_com[1].f32);
+						dsp.delay.set_dry(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.delay.set_feedback(&rx_com[1].f32);
+						dsp.delay.set_time(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.delay.set_time(&rx_com[1].f32);
+						dsp.delay.set_feedback(&rx_com[n_val].f32);
 						break;
 				}
 
 			}
 			break;
 
-		case c_chorus_bank:
+		case bankid_chorus:
 			//chorus
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.chorus.set_wet(&rx_com[1].f32);
+						dsp.chorus.set_wet(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.chorus.set_depth(&rx_com[1].f32);
+						dsp.chorus.set_depth(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.chorus.set_rate(&rx_com[1].f32);
+						dsp.chorus.set_rate(&rx_com[n_val].f32);
 						break;
 				}
 
 			}
 
 			break;
-		case c_overdrive_bank:
+
+		case bankid_overdrive:
 			//Overdrive
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.overdrive.set_gain(&rx_com[1].f32);
+						dsp.overdrive.set_gain(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.overdrive.set_HP_freq(&rx_com[1].f32);
+						dsp.overdrive.set_HP_freq(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.overdrive.set_HP_freq(&rx_com[1].f32);
+						dsp.overdrive.set_HP_freq(&rx_com[n_val].f32);
 						break;
 				}
 
@@ -143,19 +290,19 @@ void c_com_ctrl::apply_update(void)
 
 			break;
 
-		case c_reverb_bank:
+		case bankid_reverb:
 			//Reverb
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.reverb.set_wet(&rx_com[1].f32);
+						dsp.reverb.set_wet(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.reverb.set_size(&rx_com[1].f32);
+						dsp.reverb.set_size(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.reverb.set_damp(&rx_com[1].f32);
+						dsp.reverb.set_damp(&rx_com[n_val].f32);
 						break;
 				}
 
@@ -163,19 +310,19 @@ void c_com_ctrl::apply_update(void)
 
 			break;
 
-		case c_tremolo_bank:
+		case bankid_tremolo:
 			//Tremolo
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.tremolo.set_depth(&rx_com[1].f32);
+						dsp.tremolo.set_depth(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.tremolo.set_freq(&rx_com[1].f32);
+						dsp.tremolo.set_freq(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.tremolo.set_type(&rx_com[1].f32);
+						dsp.tremolo.set_type(&rx_com[n_val].f32);
 						break;
 				}
 
@@ -183,16 +330,16 @@ void c_com_ctrl::apply_update(void)
 
 			break;
 
-		case c_rotary_bank:
+		case bankid_rotary:
 			//Rotary
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.rotary.set_depth(&rx_com[1].f32);
+						dsp.rotary.set_depth(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.rotary.set_freq(&rx_com[1].f32);
+						dsp.rotary.set_freq(&rx_com[n_val].f32);
 						break;
 					case 2:
 						break;
@@ -202,19 +349,19 @@ void c_com_ctrl::apply_update(void)
 
 			break;
 
-		case c_compressor_bank:
+		case bankid_comp:
 			//Compressor
-			if(rx_com[0].u8[1]==0){
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
 				//Encoders
-				switch(rx_com[0].u8[2]){	//Switch on encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.compressor.set_threshold(&rx_com[1].f32);
+						dsp.compressor.set_threshold(&rx_com[n_val].f32);
 						break;
 					case 1:
-						dsp.compressor.set_ratio(&rx_com[1].f32);
+						dsp.compressor.set_ratio(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.compressor.set_attack(&rx_com[1].f32);
+						dsp.compressor.set_attack(&rx_com[n_val].f32);
 						break;
 				}
 
@@ -222,6 +369,44 @@ void c_com_ctrl::apply_update(void)
 
 			break;
 
+		case bankid_flanger:
+			//Flanger
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.flanger.set_wet(&rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.flanger.set_rate(&rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.flanger.set_feedback(&rx_com[n_val].f32);
+						break;
+				}
+
+			}
+
+			break;
+
+		case bankid_autowah:
+			//Autowah
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						dsp.autowah.set_depth(&rx_com[n_val].f32);
+						break;
+					case 1:
+						dsp.autowah.set_rate(&rx_com[n_val].f32);
+						break;
+					case 2:
+						dsp.autowah.set_quality(&rx_com[n_val].f32);
+						break;
+				}
+			}
+
+			break;
 	}
 
 

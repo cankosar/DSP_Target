@@ -9,17 +9,15 @@
 #include "../../dsp/inc/constants.hpp"
 #include "../inc/biquad.hpp"
 //#include "stdio.h"
-#include "stm32h7xx_hal.h"
 
 
 void c_biquad::init(void){
 
 	//Set initial parameters
-	set_param(&initial_param[0],
-				&initial_param[1],
-				&initial_param[2],
-				&initial_param[3],
-				&initial_param[4]);
+	set_filter_type(initial_type);
+	set_gain(initial_gain);
+	set_freq(initial_freq);
+	set_quality(initial_quality);
 
 	//Initial reset of buffer
 	reset_buffer();
@@ -47,14 +45,48 @@ void c_biquad::stop(void){
 	reset_buffer();
 }
 
+void c_biquad::set_filter_type(short unsigned t){
 
-void c_biquad::apply_filter(unsigned short type, float g, float f0, float Q){
+	//Set type
+	type=t;
 
+	//Update biquad parameters
+	update_param();
+}
+
+void c_biquad::set_gain(float g){
+
+	//Set gain
+	gain=g;
+
+	//Update biquad parameters
+	update_param();
+}
+
+void c_biquad::set_freq(float f){
+
+	//Set frequency
+	f0=f;
+
+	//Update biquad parameters
+	update_param();
+}
+
+void c_biquad::set_quality(float q){
+
+	//Set quality
+	Q=q;
+
+	//Update biquad parameters
+	update_param();
+}
+
+void c_biquad::update_param(void){
 
 
 	double A,w0,cosw0,sinw0,alpha,a0;
 	//Intermediate vars
-	A=pow(10,g/40);
+	A=pow(10,gain/40);
 	w0=2*PI*(f0/FS);
 	cosw0=cos(w0);
 	sinw0=sin(w0);
@@ -114,7 +146,7 @@ void c_biquad::apply_filter(unsigned short type, float g, float f0, float Q){
 
 
 
-//		printf("Applied %f %f %f %f %f\n\n",param[0],param[1],param[2],param[3],param[4]);
+
 
 
 }
@@ -130,11 +162,11 @@ void c_biquad::set_param(float *b0, float *b1, float *b2, float *a0, float *a1){
 	param[4]=*a1;
 }
 
-float c_biquad::process(float *x){
+float c_biquad::process(float x){
 
 	//Process biquad filter
 	y=
-		  *x*param[0]
+		  x*param[0]
 		+x1*param[1]
 		+x2*param[2]
 		-y1*param[3]
@@ -143,12 +175,10 @@ float c_biquad::process(float *x){
 	//Update the history array
 	x2=x1;
 	y2=y1;
-	x1=*x;
+	x1=x;
 	y1=y;
 
 	return y;
-
-
 
 }
 

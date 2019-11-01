@@ -16,13 +16,27 @@ extern "C" {
 void c_dsp::init(void){
 
 	//Initialize Biquad filters
-	unsigned short int i;
-	for(i=0;i<n_EQ;i++){
-		//Initialize
-		biquad[i].init();
-	}
 
-//	biquad[0].apply_filter(0,1,2000,1);
+	//Lowshelf filter
+	lowshelf.init();
+	lowshelf.set_filter_type(3);
+
+	//Low mid filter
+	lowmid.init();
+	lowmid.set_filter_type(2);
+
+	//Low mid filter
+	lowmid.init();
+	lowmid.set_filter_type(2);
+
+	//Low mid filter
+	mid.init();
+	mid.set_filter_type(2);
+
+	//High shelf filter
+	highshelf.init();
+	highshelf.set_filter_type(4);
+
 
 	//Initialize tuner
 	tuner.init();
@@ -50,6 +64,12 @@ void c_dsp::init(void){
 	//Initialize rotary
 	compressor.init();
 
+	//Initialize flanger
+	flanger.init();
+
+	//Initialize autowah
+	autowah.init();
+
 	//Set status
 	status=1;
 
@@ -70,13 +90,26 @@ int32_t c_dsp::process(int32_t *x){
 		}
 
 		//Pass through the EQ section
-		unsigned short i;
-		for(i=0;i<n_EQ;i++){
-			if(biquad[i].status){
-
-				y=biquad[i].process(&y);
-			}
+		if(lowshelf.status){
+			y=lowshelf.process(y);
 		}
+
+		if(lowmid.status){
+			y=lowmid.process(y);
+		}
+
+		if(mid.status){
+			y=mid.process(y);
+		}
+
+		if(highmid.status){
+			y=highmid.process(y);
+		}
+
+		if(highshelf.status){
+			y=highshelf.process(y);
+		}
+
 
 		//Pass through delay
 		if(delay.status){
@@ -87,6 +120,12 @@ int32_t c_dsp::process(int32_t *x){
 		if(chorus.status){
 
 			y=chorus.process(y);
+		}
+
+		//Pass through flanger
+		if(flanger.status){
+
+			y=flanger.process(y);
 		}
 
 		//Pass through rotary
@@ -102,6 +141,13 @@ int32_t c_dsp::process(int32_t *x){
 		//Pass through the overdrive
 		if(overdrive.status){
 			y=overdrive.process(y);	//Overdrive
+		}
+
+		//Pass through autowah
+		//Pass through flanger
+		if(autowah.status){
+
+			y=autowah.process(y);
 		}
 
 		//Pass through reverb
@@ -127,11 +173,12 @@ void c_dsp::stop(void){
 	//Reset status
 	status=0;
 
-	//Reset biquads
-	unsigned int i;
-	for(i=0;i<n_EQ;i++){
-		biquad[i].stop();
-	}
+	//Stop EQ
+	lowshelf.stop();
+	lowmid.stop();
+	mid.stop();
+	highmid.stop();
+	highshelf.stop();
 
 	//Reset delay
 	delay.stop();
@@ -154,8 +201,14 @@ void c_dsp::stop(void){
 	//Reset compressor
 	compressor.stop();
 
+	//Reset flanger
+	flanger.stop();
+
+	//Reset autowah
+	autowah.stop();
+
 	//Reset tuner
-	tuner.stop();
+//	tuner.stop();
 
 }
 
@@ -166,91 +219,140 @@ void c_dsp::start(void){
 
 void c_dsp::update_bank_states(uint32_t banks){
 
-	/*Here comes the update hash */
-	//Dummy hash
-//	unsigned banks=0b111111111101;			//Full performance test
-//	unsigned banks=0b111101011101;			//wo delay and od
-//	unsigned banks=0b000000100001;			//Pass through
-
-//	printf("Banks in:%lu\n",banks);
-
-	//General DSP bank
-	if(banks&(1<<c_dsp_bank)){
-		start();
-	}else{
-		stop();
-	}
+//	printf("U:%ld\n",banks);
 
 	//Tuner bank
-	if(banks&(1<<c_tuner_bank)){
-		//Stop DSP
-		stop();
-		tuner.start();
+	if(banks&(1<<bankid_tuner)){
+		//Stop DSP if it still runs
+		if(status){
+			stop();
+		}
+
+		//Start tuner if it's not running
+		if(!tuner.status){
+			tuner.start();
+		}
 
 	}else{
-		tuner.stop();
-		//Start DSP
-		start();
+
+		//General DSP bank
+		if(banks&(1<<bankid_general)){
+
+			//Stop tuner if it's running
+			if(tuner.status){
+				tuner.stop();
+			}
+
+			//Start DSP if it's not running
+			if(!status){
+				start();
+			}
+		}else{
+
+			//Stop DSP if it's not running
+			if(status){
+				stop();
+			}
+		}
+
 	}
 
-	//EQ banks
-	unsigned i;
-	for(i=0;i<n_EQ;i++){
-		//EQ banks
-		if(banks&(1<<(i+c_EQ_bank))){
-			biquad[i].start();
-		}else{
-			biquad[i].stop();
-		}
+	//Lowshelf bank
+	if(banks&(1<<(bankid_lowshelf))){
+		lowshelf.start();
+	}else{
+		lowshelf.stop();
+	}
+
+	//Lowmid bank
+	if(banks&(1<<(bankid_lowmid))){
+		lowmid.start();
+	}else{
+		lowmid.stop();
+	}
+
+	//Mid bank
+	if(banks&(1<<(bankid_mid))){
+		mid.start();
+	}else{
+		mid.stop();
+	}
+
+	//High mid bank
+	if(banks&(1<<(bankid_highmid))){
+		highmid.start();
+	}else{
+		highmid.stop();
+	}
+
+	//High shelf bank
+	if(banks&(1<<(bankid_highshelf))){
+		highshelf.start();
+	}else{
+		highshelf.stop();
 	}
 
 	//Delay bank
-	if(banks&(1<<(c_delay_bank))){
+	if(banks&(1<<(bankid_delay))){
 		delay.start();
 	}else{
 		delay.stop();
 	}
 
 	//Chorus bank
-	if(banks&(1<<(c_chorus_bank))){
+	if(banks&(1<<(bankid_chorus))){
 		chorus.start();
 	}else{
 		chorus.stop();
 	}
 
 	//Overdrive bank
-	if(banks&(1<<(c_overdrive_bank))){
+	if(banks&(1<<(bankid_overdrive))){
 		overdrive.start();
 	}else{
 		overdrive.stop();
 	}
 
 	//Reverb bank
-	if(banks&(1<<(c_reverb_bank))){
+	if(banks&(1<<(bankid_reverb))){
 		reverb.start();
 	}else{
 		reverb.stop();
 	}
 
 	//Tremolo bank
-	if(banks&(1<<(c_tremolo_bank))){
+	if(banks&(1<<(bankid_tremolo))){
 		tremolo.start();
 	}else{
 		tremolo.stop();
 	}
 
 	//Rotary bank
-	if(banks&(1<<(c_rotary_bank))){
+	if(banks&(1<<(bankid_rotary))){
 		rotary.start();
 	}else{
 		rotary.stop();
 	}
 
 	//Compressor bank
-	if(banks&(1<<(c_compressor_bank))){
+	if(banks&(1<<(bankid_comp))){
 		compressor.start();
 	}else{
 		compressor.stop();
+	}
+
+	//Flanger bank
+	if(banks&(1<<(bankid_flanger))){
+		flanger.start();
+	}else{
+		flanger.stop();
+	}
+
+	//Compressor bank
+	if(banks&(1<<(bankid_autowah))){
+		autowah.start();
+	}else{
+		autowah.stop();
 	}
 }
 

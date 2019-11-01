@@ -15,9 +15,13 @@ class c_biquad{
 		void init(void);
 		void start(void);
 		void stop(void);
+		float process(float);
 		void set_param(float *b0, float *b1, float *b2, float *a0, float *a1);
-		float process(float *x);
-		void apply_filter(unsigned short type, float g, float f0, float Q);
+		void update_param(void);
+		void set_filter_type(short unsigned t);
+		void set_gain(float g);
+		void set_freq(float f);
+		void set_quality(float q);
 
 		//Variables
 		bool status;
@@ -30,10 +34,19 @@ class c_biquad{
 		//Buffer
 		float y,y1,y2,x1,x2;
 
+		//Filter build parameters
+		unsigned short type;
+		float gain;
+		float f0;
+		float Q;
+
 		//Parameters with default initializers
 		float param[5];
 
-		float initial_param[5]={1,0,0,0,0};
+		unsigned short initial_type=1;
+		float initial_gain=0;
+		float initial_freq=0;
+		float initial_quality=1;
 
 };
 

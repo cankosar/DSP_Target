@@ -7,6 +7,7 @@
 
 #ifndef INC_MODULES_TUNER_HPP_
 #define INC_MODULES_TUNER_HPP_
+#include "stm32h7xx_hal.h"
 
 class c_tuner{
 
@@ -49,8 +50,8 @@ class c_tuner{
 		unsigned p,p1,p2;
 
 		//Moving average filter
-		unsigned maptr;
-		static const unsigned l_maf=4;
+		uint8_t maptr;
+		static const uint8_t l_maf=4;
 		float buf_maf[l_maf]; 		//Moving average filter
 		double devtol= 1.02930223664;	//Deviation tolerance 50 cents
 

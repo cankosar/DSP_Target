@@ -45,11 +45,14 @@ int main(void){
 	//Start communication
 	com.start();
 
+	//Initialize serializer
+	ser.init();
+
+	//Initialize communication to uC
+	com.setup_uC_com();
+
 	//Initialize codec
 	codec.init();
-
-	//Activate codec
-	codec.set_status(1);
 
 	//Initialize SAI
 	sai.init();
@@ -57,8 +60,9 @@ int main(void){
 	//Start SAI
 	sai.start();
 
-	//Initialize serializer
-	ser.init();
+
+	//Activate codec
+	codec.set_status(1);
 
 	//Start serializer
 	ser.start();

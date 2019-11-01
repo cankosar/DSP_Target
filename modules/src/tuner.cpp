@@ -8,9 +8,11 @@
 #include "math.h"
 #include "string.h"
 #include "../inc/tuner.hpp"
+#include "../../com/inc/com_ctrl.hpp"
 #include "../../dsp/inc/constants.hpp"
 #include "stm32h7xx_hal.h"
 
+extern c_com_ctrl com;
 
 void c_tuner::init(void){
 
@@ -35,9 +37,6 @@ void c_tuner::stop(void){
 	status=0;
 	//Reset buffer
 	reset_buffer();
-
-
-
 
 }
 
@@ -100,6 +99,11 @@ void c_tuner::detect_pitch(void){
 
 	//Filter output and estimate frequency
 	estimate_freq();
+
+	//Send the frequency
+	com.provide_tuner_freq(&fc);
+
+
 }
 
 
@@ -237,6 +241,7 @@ void c_tuner::estimate_freq(void){
 		maptr=0;
 	}
 
+
 	//Calculate moving average
 
 	ma=0;
@@ -260,7 +265,7 @@ void c_tuner::estimate_freq(void){
 	}
 
 	//Moving average value
-	ma=ma/l_maf;
+	ma=ma/(float)l_maf;
 
 	//Deviation
 	deviation=maximum/minimum;
@@ -286,6 +291,6 @@ void c_tuner::estimate_freq(void){
 
 	}
 
-//	printf("Fc=%.2f\n",fc);
+//	printf("fin=%ld, ma=%ld \t Fc=%ld\n",(int32_t) fin, (int32_t) ma, (int32_t)fc);
 
 }

@@ -21,6 +21,7 @@ class c_overdrive{
 		void set_gain(float *g);
 		void set_HP_freq(float *f);
 		void set_LP_freq(float *f);
+		void init_biquad_filters(void);
 
 		//Variables
 		bool status;
@@ -28,7 +29,7 @@ class c_overdrive{
 	private:
 		//Variables
 		float downscaler;
-		float upscaler=10000000;
+		float upscaler=1000;
 		float gain;
 
 		//Initial parameters

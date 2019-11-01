@@ -16,9 +16,12 @@ class c_com_ctrl{
 		void init(void);
 		void start(void);
 		void apply_update(void);
+		void setup_uC_com(void);
+		void provide_tuner_freq(float *freq);
 
 	private:
 
+		bool LOCK=1;
 		void MX_SPI3_Init(void);
 };
 
