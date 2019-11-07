@@ -70,6 +70,9 @@ void c_dsp::init(void){
 	//Initialize autowah
 	autowah.init();
 
+	//Initialize wahwah
+	wahwah.init();
+
 	//Set status
 	status=1;
 
@@ -144,10 +147,15 @@ int32_t c_dsp::process(int32_t *x){
 		}
 
 		//Pass through autowah
-		//Pass through flanger
 		if(autowah.status){
 
 			y=autowah.process(y);
+		}
+
+		//Pass through wahwah
+		if(wahwah.status){
+
+			y=wahwah.process(y);
 		}
 
 		//Pass through reverb
@@ -206,6 +214,9 @@ void c_dsp::stop(void){
 
 	//Reset autowah
 	autowah.stop();
+
+	//Reset wahwah
+	wahwah.stop();
 
 	//Reset tuner
 //	tuner.stop();
@@ -353,6 +364,13 @@ void c_dsp::update_bank_states(uint32_t banks){
 		autowah.start();
 	}else{
 		autowah.stop();
+	}
+
+	//Wahwah bank
+	if(banks&(1<<(bankid_wahwah))){
+		wahwah.start();
+	}else{
+		wahwah.stop();
 	}
 }
 
