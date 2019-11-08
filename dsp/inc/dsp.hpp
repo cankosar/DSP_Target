@@ -25,6 +25,7 @@
 #include "../../modules/inc/flanger.hpp"
 #include "../../modules/inc/autowah.hpp"
 #include "../../modules/inc/wahwah.hpp"
+#include "../../modules/inc/volume.hpp"
 
 class c_dsp{
 	public:
@@ -57,6 +58,7 @@ class c_dsp{
 		c_flanger flanger;
 		c_autowah autowah;
 		c_wahwah wahwah;
+		c_volume volume;
 
 //	private:
 };

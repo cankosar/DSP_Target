@@ -15,9 +15,6 @@ void c_overdrive::init(void){
 
 	init_biquad_filters();
 
-	//Init intermediate parameters
-	downscaler=1/upscaler;
-
 }
 
 void c_overdrive::start(void){
@@ -58,7 +55,7 @@ void c_overdrive::init_biquad_filters(void){
 
 void c_overdrive::set_gain(float *g){
 
-	gain=*g;
+	gain=*g+1;
 
 }
 
@@ -85,9 +82,11 @@ float c_overdrive::process(float x){
 
 	//Algorithm 1: y=sign(x)*(1-e(sign(x)*x))
 	if(x>0){
-		y=1-exp(-1*x);
+//		y=1-exp(-1*x);
+		y=-1*(expm1(-1*x));
 	}else{
-		y=-1+exp(x);
+//		y=-1+exp(x);
+		y=expm1(x);
 	}
 
 	y=y*upscaler;

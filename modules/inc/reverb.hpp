@@ -21,7 +21,8 @@ class c_reverb{
 		void stop(void);
 		float process(float x);
 
-		void set_wet(float* w);
+		void set_wet(float* wet);
+		void set_dry(float* dry);
 		void set_size(float* s);
 		void set_damp(float* d);
 
@@ -59,13 +60,15 @@ class c_reverb{
 		float initial_size	= 80.0f;
 		float initial_damp	= 40.0f;
 		float initial_wet	= 60.0f;
+		float initial_dry	= 100.0f;
+
 
 		//Instances
 		comb inst_comb[n_comb];
 		allpass inst_allpass[n_allpass];
 
 		//Parameter
-		float drymix;
+		float drymix=1;
 		float wetmix;;
 		float roomsize;
 		float damp;

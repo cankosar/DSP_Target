@@ -129,8 +129,8 @@ void c_com_ctrl::apply_update(void)
 {
 	//Copy incoming message to union
 	memcpy(rx_com,ctrl_rx,4*l_ctrl);
-
-//	printf("Bank: %d\t Type:%d\t Id:%d\t Value:%d\n",rx_com[0].u8[0],rx_com[0].u8[1],	rx_com[0].u8[2],rx_com[1].u16[0]);
+//
+//	printf("Bank: %d\t Type:%d\t Id:%d\t Value:%ld\n",rx_com[0].u8[0],rx_com[0].u8[1],	rx_com[0].u8[2],(long int)rx_com[1].f32);
 
 //	printf("b\n");
 	//Update bank states
@@ -140,6 +140,21 @@ void c_com_ctrl::apply_update(void)
 
 	switch(rx_com[0].u8[0]){
 
+		case bankid_general:
+			//General
+			if(rx_com[n_cmd].u8[i_type]==type_enc){
+				//Encoders
+				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
+					case 0:
+						break;
+					case 1:
+						dsp.volume.set_volume(rx_com[n_val].f32);
+						break;
+					case 2:
+						break;
+				}
+			}
+			break;
 
 		case bankid_lowshelf:
 			//Low shelf
@@ -237,7 +252,7 @@ void c_com_ctrl::apply_update(void)
 				//Encoders
 				switch(rx_com[n_cmd].u8[i_id]){	//Switch on encoders
 					case 0:
-						dsp.delay.set_dry(&rx_com[n_val].f32);
+						dsp.delay.set_wet(&rx_com[n_val].f32);
 						break;
 					case 1:
 						dsp.delay.set_time(&rx_com[n_val].f32);
@@ -282,7 +297,7 @@ void c_com_ctrl::apply_update(void)
 						dsp.overdrive.set_HP_freq(&rx_com[n_val].f32);
 						break;
 					case 2:
-						dsp.overdrive.set_HP_freq(&rx_com[n_val].f32);
+						dsp.overdrive.set_LP_freq(&rx_com[n_val].f32);
 						break;
 				}
 

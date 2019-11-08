@@ -33,6 +33,7 @@ void c_reverb::init(void){
 
 	//Initialize with default values
 	set_wet(&initial_wet);
+	set_dry(&initial_dry);
 	set_size(&initial_size);
 	set_damp(&initial_damp);
 
@@ -99,8 +100,12 @@ void c_reverb::set_wet(float* w){
 
 	//Update the dry&wet mix
 	wetmix=*w*0.01;
-	drymix=1-wetmix;
+}
 
+void c_reverb::set_dry(float* dry){
+
+	//Update the dry&wet mix
+	drymix=*dry*0.01;
 }
 
 void c_reverb::set_size(float* s){

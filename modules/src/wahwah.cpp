@@ -61,9 +61,10 @@ void c_wahwah::set_depth(float *d){
 }
 
 void c_wahwah::set_width(float *w){
-	width=*w;
 
-	//To be done
+//	width=*w;
+	freq_low=freq_mid- 	width_range* (*w*0.01);
+	freq_high=freq_mid+ width_range* (*w*0.01);
 
 }
 

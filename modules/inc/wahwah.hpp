@@ -40,7 +40,7 @@ class c_wahwah{
 		float Q;			//Quality
 		float frequency;	//Current frequency
 		float depth; 		//Gain of peak filter
-		float width; 		//Width
+//		float width; 		//Width
 
 		//Update
 		unsigned int n_update_reset;
@@ -65,6 +65,7 @@ class c_wahwah{
 		float initial_freq_low=400;
 		float initial_freq_high=2800;
 		float freq_mid=1600;			//Middle frequency for width
+		float width_range=1300;
 
 		float position;
 		float position_max=4096;

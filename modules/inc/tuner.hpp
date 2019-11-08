@@ -17,6 +17,7 @@ class c_tuner{
 		void start(void);
 		void stop(void);
 		void process(float x);
+		void set_A4(float f);
 
 		//Variables
 		bool status;

@@ -73,6 +73,9 @@ void c_dsp::init(void){
 	//Initialize wahwah
 	wahwah.init();
 
+	//Initialize volume
+	volume.init();
+
 	//Set status
 	status=1;
 
@@ -162,6 +165,10 @@ int32_t c_dsp::process(int32_t *x){
 		if(reverb.status){
 			y=reverb.process(y);
 		}
+
+		//Pass through volume
+		y=volume.process(y);
+
 	}
 	else if(tuner.status){
 		tuner.process(y);

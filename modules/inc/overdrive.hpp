@@ -28,12 +28,13 @@ class c_overdrive{
 
 	private:
 		//Variables
-		float downscaler;
-		float upscaler=1000;
+
+		float upscaler=100000000;
+		float downscaler=1/upscaler;
 		float gain;
 
 		//Initial parameters
-		float initial_gain=10;
+		float initial_gain=1;
 		float initial_HP_freq=300;
 		float initial_LP_freq=3500;
 
