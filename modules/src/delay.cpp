@@ -67,6 +67,7 @@ void c_delay::set_feedback(float* fb){
 
 	G_fb=*fb*0.009;		//Max value: 0.9 for stability reasons
 
+
 }
 
 void c_delay::start(void){
@@ -90,7 +91,7 @@ float c_delay::process(float x){
 
 	//Update buffer
 	dbuf[dptr]=x+dbuf[dptr]*G_fb;
-
+//	dbuf[dptr]=x;
 	//Increment pointer
 	dptr++;
 

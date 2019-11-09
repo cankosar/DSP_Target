@@ -44,8 +44,8 @@ class c_delay{
 
 		//Default parameters
 		float initial_fb=30;
-		float initial_dry=70;
-		float initial_wet=30;
+		float initial_dry=100;
+		float initial_wet=0;
 		float initial_time=100;
 };
 
